@@ -1,0 +1,53 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: quiz-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .env
+    networks:
+      - quiz-network
+    depends_on:
+      - database
+
+  database:
+    image: postgres:15-alpine
+    container_name: quiz-database
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user_quiz
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: quiz_db
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - quiz-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+
+    networks:
+      - quiz-network
+
+    volumes:
+      - ./frontend:/app
+      - app/node_modules
+      - app/.next
+
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+
+networks:
+  quiz-network:
+    driver: bridge
