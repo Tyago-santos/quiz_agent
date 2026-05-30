@@ -10,6 +10,8 @@ services:
       - ./backend:/app
     env_file:
       - .env
+    environment:
+      - ENVIRONMENT=development
     networks:
       - quiz-network
     depends_on:
