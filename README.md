@@ -155,37 +155,158 @@ quiz/
 
 ### Pré-requisitos
 
-- Docker + Docker Compose
-- Uma chave da [Google Gemini API](https://aistudio.google.com/apikey)
+- **Chave da API Google Gemini** — obtenha em https://aistudio.google.com/apikey
+- Pelo menos um dos ambientes abaixo:
 
-### 1. Configure as variáveis de ambiente
+### Opção 1 — Docker (recomendado)
 
-Crie um arquivo `.env` na raiz do projeto:
-
-```env
-GEMINI_API_KEY=sua_chave_aqui
-POSTGRES_USER=user_quiz
-POSTGRES_PASSWORD=123456
-POSTGRES_DB=quiz_db
-DATABASE_URL=postgresql://user_quiz:123456@database:5432/quiz_db
-```
-
-### 2. Suba os containers
+Sobe tudo (backend + frontend + banco) de uma vez.
 
 ```bash
+# 1. Configure as variáveis de ambiente
+cp .env.example .env
+# Edite .env e coloque sua GEMINI_API_KEY
+
+# 2. Suba os containers
 docker compose up --build
 ```
-
-Isso sobe 3 serviços:
 
 | Serviço | Acesso |
 |---|---|
 | Frontend | http://localhost:3000 |
 | Backend (API) | http://localhost:8000 |
-| Banco (PostgreSQL) | localhost:5432 |
 | Docs Swagger | http://localhost:8000/docs |
+| Banco (PostgreSQL) | localhost:5432 |
 
-### 3. Use a aplicação
+---
+
+### Opção 2 — Manual (backend Python + frontend npm)
+
+#### Banco de dados
+
+Você precisa de um PostgreSQL rodando. Pode subir só o banco com Docker:
+
+```bash
+docker run -d \
+  --name quiz-db \
+  -e POSTGRES_USER=user_quiz \
+  -e POSTGRES_PASSWORD=123456 \
+  -e POSTGRES_DB=quiz_db \
+  -p 5432:5432 \
+  postgres:15-alpine
+```
+
+#### Backend
+
+```bash
+cd backend
+
+# Crie um virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Instale as dependências
+pip install -r requirements.txt
+
+# Configure a URL do banco
+export DATABASE_URL=postgresql://user_quiz:123456@localhost:5432/quiz_db
+export GEMINI_API_KEY=sua_chave_aqui
+
+# Crie as tabelas no banco
+python scripts/migrate.py "$DATABASE_URL"
+
+# Rode o servidor (dev com reload)
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# Ou em produção (sem reload)
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+#### Frontend
+
+```bash
+cd frontend
+
+# Instale as dependências
+npm install
+
+# Configure a URL da API (padrão: http://backend:8000 no Docker)
+export API_URL=http://localhost:8000
+
+# Rode em modo dev
+npm run dev
+
+# Ou build para produção
+npm run build && npm start
+```
+
+Acesse o frontend em http://localhost:3000.
+
+---
+
+### Opção 3 — Backend com Uvicorn direto (sem Docker)
+
+```bash
+cd backend
+source venv/bin/activate
+export DATABASE_URL=postgresql://user_quiz:123456@localhost:5432/quiz_db
+export GEMINI_API_KEY=sua_chave_aqui
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+---
+
+### Opção 4 — Somente frontend (com backend já rodando)
+
+```bash
+cd frontend
+npm install
+API_URL=https://seu-backend.onrender.com npm run dev
+```
+
+---
+
+### Migração de banco (criação de tabelas)
+
+Sempre que conectar a um banco novo (local, staging, produção), execute:
+
+```bash
+cd backend
+source venv/bin/activate
+python scripts/migrate.py "postgresql://usuario:senha@host:5432/banco"
+```
+
+O script cria as tabelas `users` e `quiz_history` automaticamente.
+
+---
+
+### Testando a API
+
+Depois do backend rodando, use os arquivos de exemplo:
+
+```bash
+# Testar autenticação
+curl -X POST http://localhost:8000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"joao","email":"joao@email.com","password":"123"}'
+
+# Login
+curl -X POST http://localhost:8000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"joao@email.com","password":"123"}'
+
+# Fazer pergunta (substitua TOKEN pelo token recebido)
+curl -X POST http://localhost:8000/quiz/ask \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKEN" \
+  -d '{"message":"quanto é 2+2?"}'
+```
+
+Ou importe os arquivos `backend/auth.http` e `backend/questions.http` no VS Code (REST Client).
+
+---
+
+### Use a aplicação
 
 1. Acesse http://localhost:3000/register e crie uma conta
 2. Faça login
@@ -223,15 +344,36 @@ Isso sobe 3 serviços:
 
 ## Deploy no Render
 
-O projeto inclui um `render.yaml` (Render Blueprint). Basta conectar o repositório no Render que ele:
+O projeto inclui um `render.yaml` (Render Blueprint). Conecte o repositório no Render.
 
-1. Cria o banco PostgreSQL
-2. Faz o build e deploy do backend via Docker
-3. Injeta as env vars automaticamente (`DATABASE_URL`, `SECRET_KEY`)
+### Variáveis de ambiente obrigatórias
 
-Configure manualmente no dashboard do Render:
+Antes do deploy, configure no dashboard do Render (cada serviço → Environment Variables):
 
-- `GEMINI_API_KEY` — sua chave da Google Gemini
+**Backend (`quiz-backend`):**
+
+| Variável | Valor |
+|---|---|
+| `GEMINI_API_KEY` | Sua chave da Google Gemini |
+| `DATABASE_URL` | Connection string do PostgreSQL |
+
+**Frontend (se aplicável):**
+
+| Variável | Valor |
+|---|---|
+| `API_URL` | URL do backend (ex: `https://quiz-backend.onrender.com`) |
+
+> O `ENVIRONMENT=production` e `SECRET_KEY` são injetados automaticamente pelo `render.yaml`.
+
+### Banco de dados
+
+Antes do deploy, crie as tabelas no banco de produção:
+
+```bash
+python backend/scripts/migrate.py "postgresql://usuario:senha@host:5432/banco"
+```
+
+O Render Blueprint antigo criava um banco automaticamente. A versão atual usa um banco externo — certifique-se de que a `DATABASE_URL` aponte para um PostgreSQL já existente com as tabelas criadas.
 
 ---
 
