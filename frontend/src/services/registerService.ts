@@ -12,9 +12,9 @@ export interface RegisterResponse {
 
 function getApiUrl(): string {
   if (typeof window === "undefined") {
-    return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    return process.env.API_URL || "http://backend:8000";
   }
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  return "/api";
 }
 
 export async function registerService(data: RegisterRequest): Promise<RegisterResponse> {
