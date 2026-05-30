@@ -12,4 +12,4 @@ def register(body: RegisterRequest):
 
 @router.post("/login", response_model=TokenResponse)
 def login(body: LoginRequest):
-    return auth_service.login(body.username, body.password)
+    return auth_service.login(body.email, body.password)

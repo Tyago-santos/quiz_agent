@@ -22,9 +22,9 @@ def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 
-def create_access_token(username: str) -> str:
+def create_access_token(email: str) -> str:
     payload = {
-        "sub": username,
+        "sub": email,
         "exp": datetime.now(timezone.utc)
         + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     }
@@ -40,14 +40,14 @@ def register(username: str, email: str, password: str) -> dict:
     return {"id": user.id, "username": user.username, "email": user.email}
 
 
-def login(username: str, password: str) -> dict:
-    user = get_by_username(username)
+def login(email: str, password: str) -> dict:
+    user = get_by_email(email)
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciais inválidas",
         )
-    token = create_access_token(user.username)
+    token = create_access_token(user.email)
     return {"access_token": token, "token_type": "bearer"}
 
 
@@ -57,10 +57,10 @@ def get_current_user(
     token = credentials.credentials
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise HTTPException(status_code=401, detail="Invalid token")
-        user = get_by_username(username)
+        user = get_by_email(email)
         if user is None:
             raise HTTPException(status_code=401, detail="User not found")
         return {"id": user.id, "username": user.username, "email": user.email}
