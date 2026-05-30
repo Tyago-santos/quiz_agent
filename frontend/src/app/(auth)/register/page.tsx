@@ -1,6 +1,7 @@
 "use client";
 
 import { RegisterComponent } from "@/components/RegisterComponent";
+import { registerService } from "@/services/registerService";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -15,18 +16,7 @@ export default function RegisterPage() {
   }) {
     setError("");
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/auth/register`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        },
-      );
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || "Erro ao cadastrar");
-      }
+      await registerService(data);
       router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao cadastrar");

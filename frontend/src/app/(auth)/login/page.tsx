@@ -1,6 +1,7 @@
 "use client";
 
 import { LoginComponent } from "@/components/LoginComponent";
+import { loginService } from "@/services/loginService";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -11,18 +12,14 @@ export default function LoginPage() {
   async function handleLogin(data: { email: string; password: string }) {
     setError("");
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        },
-      );
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || "Erro ao fazer login");
-      }
+      const result = await loginService(data);
+      localStorage.setItem("token", result.access_token);
+      document.cookie = `token=${result.access_token}; path=/; max-age=86400; SameSite=Lax`;
+      router.push("/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao fazer login");
+    }
+  }
       const data = await res.json();
       localStorage.setItem("token", data.access_token);
       document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;

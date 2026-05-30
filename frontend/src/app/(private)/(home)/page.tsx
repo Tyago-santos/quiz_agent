@@ -1,6 +1,7 @@
 "use client";
 
 import { HomeComponent } from "@/components/HomeComponent";
+import { askService } from "@/services/quizService";
 import { useRouter } from "next/navigation";
 
 export default function HomePage() {
@@ -8,26 +9,18 @@ export default function HomePage() {
 
   async function handleAsk(message: string) {
     const token = localStorage.getItem("token");
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/quiz/ask`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ message }),
-      },
-    );
-    if (!res.ok) {
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        document.cookie = "token=; path=/; max-age=0";
-        router.push("/login");
-      }
+    if (!token) {
+      router.push("/login");
+      throw new Error("Não autenticado");
+    }
+    try {
+      return await askService(message, token);
+    } catch {
+      localStorage.removeItem("token");
+      document.cookie = "token=; path=/; max-age=0";
+      router.push("/login");
       throw new Error("Erro ao obter resposta");
     }
-    return res.json();
   }
 
   return (
