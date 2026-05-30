@@ -15,7 +15,7 @@ def answer_question(message: str) -> dict:
     except ResourceExhausted:
         raise HTTPException(
             status_code=429,
-            detail="Créditos da IA acabou, tente novamente mais tarde",
+            detail="Créditos da IA acabou, tente novamente amanhã",
         )
     except ServiceUnavailable:
         raise HTTPException(
