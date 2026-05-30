@@ -23,8 +23,9 @@ export default function LoginPage() {
         const err = await res.json();
         throw new Error(err.detail || "Erro ao fazer login");
       }
-      const token = await res.json();
-      localStorage.setItem("token", token.access_token);
+      const data = await res.json();
+      localStorage.setItem("token", data.access_token);
+      document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
       router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao fazer login");
