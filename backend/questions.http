@@ -1,8 +1,9 @@
-POST  http://localhost:8000/ask
+POST  http://localhost:8000/quiz/ask
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-    "message" "quem é pelé?"
+    "message": "quem é pelé?"
 }
 
 
