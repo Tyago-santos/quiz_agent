@@ -10,6 +10,8 @@ services:
       - ./backend:/app
     env_file:
       - .env
+    environment:
+      - DATABASE_URL=postgresql://user_quiz:123456@database:5432/quiz_db
     networks:
       - quiz-network
     depends_on:
@@ -24,7 +26,6 @@ services:
       POSTGRES_USER: user_quiz
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: quiz_db
-
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -36,17 +37,17 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-
     networks:
       - quiz-network
-
     volumes:
       - ./frontend:/app
-      - app/node_modules
-      - app/.next
-
+      - /app/node_modules
+      - /app/.next
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:8000
+
+volumes:
+  pgdata:
 
 networks:
   quiz-network:
