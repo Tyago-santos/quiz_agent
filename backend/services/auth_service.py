@@ -33,7 +33,7 @@ def create_access_token(username: str) -> str:
 
 def register(username: str, password: str) -> dict:
     if get_by_username(username):
-        raise HTTPException(status_code=409, detail="Username already exists")
+        raise HTTPException(status_code=409, detail="Usuário já existe")
     user = create_user(username, hash_password(password))
     return {"id": user.id, "username": user.username}
 
@@ -43,7 +43,7 @@ def login(username: str, password: str) -> dict:
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
+            detail="Credenciais inválidas",
         )
     token = create_access_token(user.username)
     return {"access_token": token, "token_type": "bearer"}
