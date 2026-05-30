@@ -121,10 +121,3 @@ graph.add_edge("historia", END)
 graph.add_edge("geografia", END)
 
 app = graph.compile()
-
-
-resultado = app.invoke({
-    "message":"Quem foi pelé?"
-})
-
-print(resultado["response"])
