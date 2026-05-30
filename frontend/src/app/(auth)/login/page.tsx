@@ -20,14 +20,6 @@ export default function LoginPage() {
       setError(err instanceof Error ? err.message : "Erro ao fazer login");
     }
   }
-      const data = await res.json();
-      localStorage.setItem("token", data.access_token);
-      document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
-      router.push("/");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao fazer login");
-    }
-  }
 
   return (
     <div className="flex flex-1 items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
