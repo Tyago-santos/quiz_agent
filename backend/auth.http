@@ -1,9 +1,24 @@
-POST  http://localhost:8000/ask
+### login
+POST http://localhost:8000/auth/register
 Content-Type: application/json
 
+
 {
-    "message" "quem é pelé?"
+    "email": "xlzthiago@gmail.com",
+    "password":"123456"
 }
 
 
-### criar usuario
+
+### registrar
+
+
+POST http://localhost:8000/auth/register
+Content-Type: application/json
+
+
+{
+    "username": "tiago",
+    "email": "xlzthiago@gmail.com",
+    "password":"123456"
+}

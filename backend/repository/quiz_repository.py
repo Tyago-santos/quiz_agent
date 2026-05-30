@@ -1,7 +1,5 @@
-from database import SessionLocal, engine
-from models import Base, QuizHistory
-
-Base.metadata.create_all(bind=engine)
+from database import SessionLocal
+from models import QuizHistory
 
 
 def save_question(question: str, answer: str, lesson: str) -> None:
