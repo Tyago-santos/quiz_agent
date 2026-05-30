@@ -2,9 +2,9 @@ from database import SessionLocal
 from models import User
 
 
-def create_user(username: str, hashed_password: str) -> User:
+def create_user(username: str, email: str, hashed_password: str) -> User:
     with SessionLocal() as db:
-        user = User(username=username, hashed_password=hashed_password)
+        user = User(username=username, email=email, hashed_password=hashed_password)
         db.add(user)
         db.commit()
         db.refresh(user)
@@ -14,3 +14,8 @@ def create_user(username: str, hashed_password: str) -> User:
 def get_by_username(username: str) -> User | None:
     with SessionLocal() as db:
         return db.query(User).filter(User.username == username).first()
+
+
+def get_by_email(email: str) -> User | None:
+    with SessionLocal() as db:
+        return db.query(User).filter(User.email == email).first()
