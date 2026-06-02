@@ -8,38 +8,38 @@ Aplicação full-stack que utiliza **Google Gemini** via **LangGraph** para clas
 
 ### Backend (`/backend`)
 
-| Tecnologia | Versão | Finalidade |
-|---|---|---|
-| **Python** | 3.12 | Linguagem |
-| **FastAPI** | 0.115 | Framework web |
-| **Uvicorn** | 0.34 | Servidor ASGI |
-| **LangChain** | 0.3 | Orquestração de LLM |
-| **LangGraph** | 0.2 | State machine do agente |
-| **Gemini (Google)** | 2.5-flash | Modelo de IA |
-| **SQLAlchemy** | 2.0 | ORM |
-| **PostgreSQL** | 15 | Banco de dados |
-| **python-jose** | 3.3 | JWT |
-| **passlib + bcrypt** | — | Hash de senhas |
+| Tecnologia           | Versão    | Finalidade              |
+| -------------------- | --------- | ----------------------- |
+| **Python**           | 3.12      | Linguagem               |
+| **FastAPI**          | 0.115     | Framework web           |
+| **Uvicorn**          | 0.34      | Servidor ASGI           |
+| **LangChain**        | 0.3       | Orquestração de LLM     |
+| **LangGraph**        | 0.2       | State machine do agente |
+| **Gemini (Google)**  | 2.5-flash | Modelo de IA            |
+| **SQLAlchemy**       | 2.0       | ORM                     |
+| **PostgreSQL**       | 15        | Banco de dados          |
+| **python-jose**      | 3.3       | JWT                     |
+| **passlib + bcrypt** | —         | Hash de senhas          |
 
 ### Frontend (`/frontend`)
 
-| Tecnologia | Versão | Finalidade |
-|---|---|---|
-| **Next.js** | 16.2 | Framework React |
-| **React** | 19.2 | UI |
-| **TypeScript** | 5 | Tipagem |
-| **Tailwind CSS** | 4 | Estilização |
-| **React Hook Form** | 7.76 | Formulários |
-| **Zod** | 4 | Validação de schemas |
-| **Vitest** | 4 | Testes unitários |
-| **Testing Library** | — | Testes de componentes |
+| Tecnologia          | Versão | Finalidade            |
+| ------------------- | ------ | --------------------- |
+| **Next.js**         | 16.2   | Framework React       |
+| **React**           | 19.2   | UI                    |
+| **TypeScript**      | 5      | Tipagem               |
+| **Tailwind CSS**    | 4      | Estilização           |
+| **React Hook Form** | 7.76   | Formulários           |
+| **Zod**             | 4      | Validação de schemas  |
+| **Vitest**          | 4      | Testes unitários      |
+| **Testing Library** | —      | Testes de componentes |
 
 ### Infraestrutura
 
-| Tecnologia | Finalidade |
-|---|---|
-| **Docker Compose** | Orquestração local |
-| **Render** | Deploy em produção (Blueprint) |
+| Tecnologia         | Finalidade                     |
+| ------------------ | ------------------------------ |
+| **Docker Compose** | Orquestração local             |
+| **Render**         | Deploy em produção (Blueprint) |
 
 ---
 
@@ -171,12 +171,12 @@ cp .env.example .env
 docker compose up --build
 ```
 
-| Serviço | Acesso |
-|---|---|
-| Frontend | http://localhost:3000 |
-| Backend (API) | http://localhost:8000 |
-| Docs Swagger | http://localhost:8000/docs |
-| Banco (PostgreSQL) | localhost:5432 |
+| Serviço            | Acesso                     |
+| ------------------ | -------------------------- |
+| Frontend           | http://localhost:3000      |
+| Backend (API)      | http://localhost:8000      |
+| Docs Swagger       | http://localhost:8000/docs |
+| Banco (PostgreSQL) | localhost:5432             |
 
 ---
 
@@ -311,10 +311,10 @@ Ou importe os arquivos `backend/auth.http` e `backend/questions.http` no VS Code
 1. Acesse http://localhost:3000/register e crie uma conta
 2. Faça login
 3. Faça perguntas como:
-   - *"Quanto é 2+2?"* → professor de matemática
-   - *"Quem foi Pelé?"* → professor de história
-   - *"O que é sujeito e predicado?"* → professor de português
-   - *"Qual a capital da França?"* → professor de geografia
+   - _"Quanto é 2+2?"_ → professor de matemática
+   - _"Quem foi Pelé?"_ → professor de história
+   - _"O que é sujeito e predicado?"_ → professor de português
+   - _"Qual a capital da França?"_ → professor de geografia
 
 ---
 
@@ -352,15 +352,15 @@ Antes do deploy, configure no dashboard do Render (cada serviço → Environment
 
 **Backend (`quiz-backend`):**
 
-| Variável | Valor |
-|---|---|
-| `GEMINI_API_KEY` | Sua chave da Google Gemini |
-| `DATABASE_URL` | Connection string do PostgreSQL |
+| Variável         | Valor                           |
+| ---------------- | ------------------------------- |
+| `GEMINI_API_KEY` | Sua chave da Google Gemini      |
+| `DATABASE_URL`   | Connection string do PostgreSQL |
 
 **Frontend (se aplicável):**
 
-| Variável | Valor |
-|---|---|
+| Variável  | Valor                                                    |
+| --------- | -------------------------------------------------------- |
 | `API_URL` | URL do backend (ex: `https://quiz-backend.onrender.com`) |
 
 > O `ENVIRONMENT=production` e `SECRET_KEY` são injetados automaticamente pelo `render.yaml`.
@@ -383,11 +383,29 @@ O Render Blueprint antigo criava um banco automaticamente. A versão atual usa u
 # Backend — via pytest
 cd backend && pytest
 
-# Frontend — via Vitest
-cd frontend && npm test
-# ou com interface gráfica
-cd frontend && npm run test:ui
+# Frontend — via Vitest (testes unitários e de integração)
+cd frontend && npm test                 # modo único
+cd frontend && npm run test:watch       # modo watch
+cd frontend && npm run test:ui          # interface gráfica
+cd frontend && npm run test:coverage    # com cobertura
+
+# Frontend — via Playwright (testes e2e)
+cd frontend && npm run test:e2e                    # headless (chromium + firefox + webkit)
+cd frontend && npm run test:e2e:headed             # com navegador visível
+cd frontend && npm run test:e2e:ui                 # Playwright UI mode
+cd frontend && npm run test:e2e:chromium           # apenas Chromium
+cd frontend && npm run test:e2e:firefox            # apenas Firefox
+cd frontend && npm run test:e2e:webkit             # apenas WebKit
+cd frontend && npm run test:e2e:debug              # modo debug (Pause on failure)
+cd frontend && npm run test:e2e:report             # abre o report HTML
+
+# Tudo (unitários + e2e)
+cd frontend && npm run test:all
 ```
+
+> ⚠️ **Pré-requisito para e2e:** o backend e frontend precisam estar rodando. Use `docker compose up -d` para subir tudo. Instale os browsers do Playwright com `npx playwright install` na primeira vez.
+
+
 
 ---
 

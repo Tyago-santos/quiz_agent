@@ -22,8 +22,6 @@ services:
   database:
     image: postgres:15-alpine
     container_name: quiz-database
-    ports:
-      - "5432:5432"
     env_file:
       - .env
     volumes:
